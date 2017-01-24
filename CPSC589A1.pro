@@ -6,6 +6,8 @@
 
 QT       += core gui
 
+//QT += GLM
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = CPSC589A1
@@ -25,9 +27,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    renderer.cpp
+        renderer.cpp \
+
+
+
 
 HEADERS  += mainwindow.h \
-    renderer.h
+    renderer.h \
+
 
 FORMS    += mainwindow.ui
