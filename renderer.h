@@ -5,13 +5,15 @@
 #include <QOpenGLWidget>
 #include <math.h>
 
-#define PI 3.14159265
+#define PI 3.1415926
+
 
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
 #else
-#include <gl/GLU.h>
+#include <GL/glu.h>
+#include <GL/freeglut.h>
 #include <GL/gl.h>
 #endif
 

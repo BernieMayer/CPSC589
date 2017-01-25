@@ -5,8 +5,13 @@
 #-------------------------------------------------
 
 QT       += core gui
+QT += opengl
+
+LIBS += -lglut -lGLU
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
+
 
 TARGET = CPSC589A1
 TEMPLATE = app
