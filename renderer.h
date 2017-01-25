@@ -4,6 +4,11 @@
 #include <QWidget>
 #include <QOpenGLWidget>
 #include <math.h>
+#include <vector>
+#include <glm/glm.hpp>
+#include <common/shader.hpp>
+#include <iostream>
+#include <fstream>
 
 #define PI 3.1415926
 
@@ -11,6 +16,7 @@
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
+//#include <OpenGL/glew.h>
 #else
 #include <GL/glu.h>
 #include <GL/freeglut.h>
@@ -40,6 +46,7 @@ protected:
 
 private:
     double R,r;
+    std::vector<glm::vec3> graphLines;
 
 };
 
