@@ -10,12 +10,16 @@
 #include <iostream>
 #include <fstream>
 
+
+
 #define PI 3.1415926
 
 
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
+#include <OpenGL.h>
+
 //#include <OpenGL/glew.h>
 #else
 #include <GL/glu.h>
@@ -45,6 +49,8 @@ protected:
     void paintGL();
 
 private:
+    GLuint programID;
+    GLuint graphVbo;
     double R,r;
     std::vector<glm::vec3> graphLines;
 

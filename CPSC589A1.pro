@@ -7,11 +7,14 @@
 QT       += core gui
 QT += opengl
 
-LIBS += -lglut -lGLU
+//LIBS += -lglut
 
 //QT += GLM
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
+
+INCLUDEPATH += .
 
 
 
@@ -33,6 +36,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += main.cpp\
         mainwindow.cpp \
         renderer.cpp \
+
 
 
 

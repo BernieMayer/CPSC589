@@ -127,7 +127,11 @@ void Renderer :: initializeGL()
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
     glEnable(GL_COLOR_MATERIAL);
 
-    //GLuint programID = LoadShaders( "SimpleVertexShader.vertexshader", "SimpleFragmentShader.fragmentshader" );
+
+
+    programID = LoadShaders( "SimpleVertexShader.vertexshader", "SimpleFragmentShader.fragmentshader" );
+    glGenBuffers(1, &graphVbo);
+    glBindBuffer(GL_ARRAY_BUFFER, graphVbo);
 
     r = 2.0;
     R = 4.2;
@@ -153,6 +157,8 @@ void Renderer :: initializeGL()
         theta += 0.05;
     }
 
+    glBufferData(GL_ARRAY_BUFFER, sizeof(graphLines), graphLines.data(), GL_STATIC_DRAW);
+
 
 }
 
@@ -162,20 +168,39 @@ void Renderer :: paintGL()
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glBegin(GL_LINE_STRIP);
-        /*
-        glColor3f(1.0, 0.0, 0.0);
-        glVertex3f(-0.5, -0.5, 0);
-        glColor3f(0.0, 1.0, 0.0);
-        glVertex3f( 0.5, -0.5, 0);
-        glColor3f(0.0, 0.0, 1.0);
-        glVertex3f( 0.0,  0.5, 0);
-        */
+    // Use the normal shader
+    glUseProgram(programID);
+
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, graphVbo);
+
+    glVertexAttribPointer(
+        0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+        3,                  // size
+        GL_FLOAT,           // type
+        GL_FALSE,           // normalized?
+        0,                  // stride
+        (void*)0            // array buffer offset
+    );
+
+    glDrawArrays(GL_LINE_STRIP, 0, graphLines.size());
+
+    glDisableVertexAttribArray(0);
+
+        // Swap buffers
+        //glfwSwapBuffers();
+        //glfwPollEvents();
 
 
 
 
-    glEnd();
+
+
+
+
+
+
 
 }
 
