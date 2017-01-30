@@ -3,14 +3,23 @@
 
 #include <QWidget>
 #include <QOpenGLWidget>
+#include <QOpenGLFunctions>
 #include <math.h>
 #include <vector>
 #include <glm/glm.hpp>
 #include <common/shader.hpp>
 #include <iostream>
 #include <fstream>
+#include <QOpenGLFunctions>
+#include <QOpenGLFunctions_4_2_Core>
+#include <QOpenGLShaderProgram>
+#include <QOpenGLShader>
+#include <QGLFunctions>
+#include <GLFW/glfw3.h>
 
+#include <GL/gl.h>
 
+#include <QOpenGLWidget>
 
 #define PI 3.1415926
 
@@ -23,11 +32,18 @@
 //#include <OpenGL/glew.h>
 #else
 #include <GL/glu.h>
-#include <GL/freeglut.h>
 #include <GL/gl.h>
+#include <GLFW/glfw3native.h>
+#include <GL/glut.h>
+#include <GLFW/glfw3.h>
+//#include <GL/glew.h>
+
+
+
 #endif
 
-class Renderer : public QOpenGLWidget
+
+class Renderer : public QOpenGLWidget, protected QOpenGLFunctions
 {
 public:
     // constructor

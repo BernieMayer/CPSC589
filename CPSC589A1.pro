@@ -6,8 +6,10 @@
 
 QT       += core gui
 QT += opengl
+QT += gui
 
-//LIBS += -lglut
+LIBS += -lglut -lGLU
+
 
 //QT += GLM
 
@@ -39,7 +41,8 @@ SOURCES += main.cpp\
 
 
 
-
+//QMAKE_CXXFLAGS += -x
+//QMAKE_CXXFLAGS += -E
 
 HEADERS  += mainwindow.h \
     renderer.h \
