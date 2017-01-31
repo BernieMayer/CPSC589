@@ -38,6 +38,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += main.cpp\
         mainwindow.cpp \
         renderer.cpp \
+        camera.cpp
+
+OTHER_FILES += \
+SimpleVertexShader.vertexshader \
+SimpleFragmentShader.fragmentshader
+
 
 
 
@@ -46,6 +52,7 @@ SOURCES += main.cpp\
 
 HEADERS  += mainwindow.h \
     renderer.h \
+    camera.h
 
 
 FORMS    += mainwindow.ui

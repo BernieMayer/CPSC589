@@ -25,8 +25,7 @@ void MainWindow::on_pushButton_clicked()
 
    renderer->setSmall_r_value(1.8);
    renderer->setBig_R_value(9.0);
+   renderer->redrawGraph();
    renderer->update();
 
-
-   ui->openGLWidget->update();
 }

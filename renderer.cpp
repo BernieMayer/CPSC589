@@ -7,6 +7,8 @@ Renderer::Renderer(QWidget *parent)
     : QOpenGLWidget(parent)
 {
 
+    activeCamera = new Camera(vec3(0,0, -1), vec3(0.31649,-0.564746,4.26627));
+
 }
 
 void Renderer::setBig_R_value(double R)
@@ -19,6 +21,27 @@ void Renderer::setSmall_r_value(double r)
 {
     this->r = r;
     //update();
+}
+
+void Renderer::setN_value(double n)
+{
+    this->n =n;
+}
+
+void Renderer::redrawGraph()
+{
+    graphLines.clear();
+
+    graphLines.push_back(vec3(0,0,0));
+    graphLines.push_back(vec3(0,0,1));
+    update();
+    std::cout << "The graph should redraw.. \n";
+    //glUseProgram(programID);
+    //glBindBuffer(GL_ARRAY_BUFFER, graphVbo);
+    //glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * graphLines.size(), graphLines.data(), GL_STATIC_DRAW);
+
+
+
 }
 
 GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path){
@@ -121,6 +144,20 @@ GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path
 
 
 
+void Renderer::generateGraph(float theta, int n, float angleMultiplier)
+{
+    while (theta < n * PI * 2 )
+    {
+        glColor3f(1.0, 0.0, 0.0);
+
+        float x = (R - r) * cos(theta) + r * cos(angleMultiplier * theta);
+        float y = (R - r) * sin(theta) - r * sin(angleMultiplier * theta);
+        //glVertex3d(x, y, 0.0);
+        graphLines.push_back(glm::vec3(x, y, 0));
+        theta += 0.05;
+    }
+}
+
 void Renderer :: initializeGL()
 {
     initializeOpenGLFunctions();
@@ -138,8 +175,8 @@ void Renderer :: initializeGL()
     glGenBuffers(1, &graphVbo);
     glBindBuffer(GL_ARRAY_BUFFER, graphVbo);
 
-    r = 2.0;
-    R = 5.2;
+    r = 1.0;
+    R = 7.0;
 
     float theta;
     int n;
@@ -151,20 +188,29 @@ void Renderer :: initializeGL()
 
     float angleMultiplier = (R - r)/r;
 
-    while (theta < n * PI * 2 )
-    {
-        glColor3f(1.0, 0.0, 0.0);
+    //graphLines.push_back(glm::vec3(0,0, 0));
+    //graphLines.push_back(glm::vec3(0,-1,0));
 
-        float x = (R - r) * cos(theta) + r * cos(angleMultiplier * theta);
-        float y = (R - r) * sin(theta) - r * sin(angleMultiplier * theta);
-        //glVertex3d(x, y, 0.0);
-        graphLines.push_back(glm::vec3(x,y, 0));
-        theta += 0.05;
-    }
-
-    glBufferData(GL_ARRAY_BUFFER, sizeof(graphLines), graphLines.data(), GL_STATIC_DRAW);
+    //graphLines.push_back(glm::vec3(0,0,0));
+    //graphLines.push_back(glm::vec3(0,1,0));
+    //graphLines.push_back(vec3(1,1,0));
+    //graphLines.push_back(glm::vec3(1,1,0));
+    //graphLines.push_back(glm::vec3(0,0,1));
 
 
+
+    generateGraph(theta, n, angleMultiplier);
+
+
+    glGenVertexArrays(1, &graphVao);
+    glBindVertexArray(graphVao);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * graphLines.size(), graphLines.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+    glEnableVertexAttribArray(0);
+
+    m_pGameTimer = new QTimer();
+    connect(m_pGameTimer, SIGNAL(timeout()), this, SLOT(update()));
+    m_pGameTimer->start(33); // 33 ms
 }
 
 void Renderer :: paintGL()
@@ -172,6 +218,7 @@ void Renderer :: paintGL()
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+     glBindVertexArray(graphVao);
     // Use the normal shader
     glUseProgram(programID);
 
@@ -179,6 +226,7 @@ void Renderer :: paintGL()
 
     glBindBuffer(GL_ARRAY_BUFFER, graphVbo);
 
+    /*
     glVertexAttribPointer(
         0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
         3,                  // size
@@ -186,11 +234,34 @@ void Renderer :: paintGL()
         GL_FALSE,           // normalized?
         0,                  // stride
         (void*)0            // array buffer offset
-    );
+    );*/
 
-    glDrawArrays(GL_LINE_STRIP, 0, graphLines.size());
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * graphLines.size(), graphLines.data(), GL_STATIC_DRAW);
 
+    glm::mat4x4 perpectiveMatrix = winRatio * perspective * activeCamera->getMatrix();
+
+
+    glUniformMatrix4fv(glGetUniformLocation(programID, "modelviewMatrix"), 1,
+                    false, &modelview[0][0]);
+
+    glUniformMatrix4fv(glGetUniformLocation(programID, "perspectiveMatrix" ), 1,
+                       false,
+                       &perpectiveMatrix[0][0]);
+
+
+    if (animation) {
+        glDrawArrays(GL_LINE_STRIP, 0, t);
+        t++;
+        if (t > graphLines.size()) {
+            animation = false;
+        }
+    }else {
+        glDrawArrays(GL_LINE_STRIP, 0, graphLines.size());
+    }
     glDisableVertexAttribArray(0);
+    glBindVertexArray(0);
+
+    //glBindVertexArray(0);
 
         // Swap buffers
         //glfwSwapBuffers();
@@ -219,4 +290,50 @@ void Renderer:: resizeGL(int w, int h)
     gluLookAt(0,0,0,0,0,0,0,1,0);
 
     paintGL();
+}
+
+// override mouse press event
+void Renderer::mousePressEvent(QMouseEvent * event)
+{
+    if (event->button() == Qt::RightButton)
+    {
+        rightMousePressed =true;
+    } else if (event->button()== Qt::LeftButton)
+    {
+        leftMousePressed = true;
+    }
+}
+
+void Renderer::mouseMoveEvent(QMouseEvent *event)
+{
+    int vp[4];
+    glGetIntegerv(GL_VIEWPORT, vp);
+
+    glm::vec2 newPos = vec2(event->x()/(double)vp[2], -event->y()/(double)vp[3]) * 2.f- vec2(1.f);
+
+    glm::vec2 diff = newPos -mousePos;
+
+    if (leftMousePressed){
+        activeCamera->trackballRight(-diff.x);
+        activeCamera->trackballUp(-diff.y);
+    } else{
+        float zoomBase =(diff.y > 0) ? 1.f/2.f :2.f;
+
+        activeCamera->zoom(pow(zoomBase, abs(diff.y)));
+    }
+
+    mousePos = newPos;
+
+    update();
+}
+
+void Renderer::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::RightButton)
+    {
+        rightMousePressed =false;
+    } else if (event->button()== Qt::LeftButton)
+    {
+        leftMousePressed = false;
+    }
 }
