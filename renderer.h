@@ -5,6 +5,9 @@
 
 #include <QWidget>
 #include <QOpenGLWidget>
+#include <QInputDialog>
+#include <QDir>
+#include <QString>
 #include <QOpenGLFunctions>
 #include <math.h>
 #include <vector>
@@ -59,8 +62,9 @@ public:
     void setBig_R_value(double R);
     void setSmall_r_value(double r);
     void setN_value(double n);
-
     void redrawGraph();
+
+    int t = 0;
 
 protected:
     // override fundamental drawing functions
@@ -84,6 +88,10 @@ protected:
     // Called when the mouse moves
     virtual void mouseMoveEvent(QMouseEvent * event);
 
+
+    virtual void keyPressEvent(QKeyEvent *event);
+    virtual void keyReleaseEvent(QKeyEvent *event);
+
 private:
     Camera* activeCamera;
     GLuint programID;
@@ -100,7 +108,7 @@ private:
     bool leftMousePressed = false;
     bool rightMousePressed = false;
     bool animation = true;
-    int t = 0;
+
 
     QTimer *m_pGameTimer;
 

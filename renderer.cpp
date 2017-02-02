@@ -6,6 +6,7 @@
 Renderer::Renderer(QWidget *parent)
     : QOpenGLWidget(parent)
 {
+    grabKeyboard();
 
     activeCamera = new Camera(vec3(0,0, -1), vec3(0.31649,-0.564746,4.26627));
 
@@ -154,7 +155,7 @@ void Renderer::generateGraph(float theta, int n, float angleMultiplier)
         float y = (R - r) * sin(theta) - r * sin(angleMultiplier * theta);
         //glVertex3d(x, y, 0.0);
         graphLines.push_back(glm::vec3(x, y, 0));
-        theta += 0.05;
+        theta += 0.1;
     }
 }
 
@@ -172,11 +173,9 @@ void Renderer :: initializeGL()
 
 
     programID = LoadShaders( "SimpleVertexShader.vertexshader", "SimpleFragmentShader.fragmentshader" );
-    glGenBuffers(1, &graphVbo);
-    glBindBuffer(GL_ARRAY_BUFFER, graphVbo);
 
     r = 1.0;
-    R = 7.0;
+    R = 3.0;
 
     float theta;
     int n;
@@ -204,6 +203,9 @@ void Renderer :: initializeGL()
 
     glGenVertexArrays(1, &graphVao);
     glBindVertexArray(graphVao);
+
+    glGenBuffers(1, &graphVbo);
+    glBindBuffer(GL_ARRAY_BUFFER, graphVbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * graphLines.size(), graphLines.data(), GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
     glEnableVertexAttribArray(0);
@@ -218,23 +220,13 @@ void Renderer :: paintGL()
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-     glBindVertexArray(graphVao);
+    glBindVertexArray(graphVao);
     // Use the normal shader
     glUseProgram(programID);
 
-    glEnableVertexAttribArray(0);
+    //glEnableVertexAttribArray(0);
 
     glBindBuffer(GL_ARRAY_BUFFER, graphVbo);
-
-    /*
-    glVertexAttribPointer(
-        0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-        3,                  // size
-        GL_FLOAT,           // type
-        GL_FALSE,           // normalized?
-        0,                  // stride
-        (void*)0            // array buffer offset
-    );*/
 
     glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * graphLines.size(), graphLines.data(), GL_STATIC_DRAW);
 
@@ -258,7 +250,7 @@ void Renderer :: paintGL()
     }else {
         glDrawArrays(GL_LINE_STRIP, 0, graphLines.size());
     }
-    glDisableVertexAttribArray(0);
+    //glDisableVertexAttribArray(0);
     glBindVertexArray(0);
 
     //glBindVertexArray(0);
@@ -292,12 +284,64 @@ void Renderer:: resizeGL(int w, int h)
     paintGL();
 }
 
+void Renderer::keyReleaseEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_A)
+    {
+
+        if (animation)
+        {
+            animation = false;
+            t = graphLines.size();
+        } else {
+            t = 0;
+            animation = true;
+        }
+        //t = graphLines.size();
+    }
+}
+
+void Renderer::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_R)
+    {
+        //std::cout << "R key has been pressed \n";
+        //redraw the graph geometry
+        bool done;
+
+        std::cout << "Enter in the r value: \n";
+        float r_value;
+        std::cin >> r_value;
+        r = (double) r_value;
+
+        std::cout << "Enter in the R value: ";
+        float R_value;
+        std::cin >> R_value;
+        R = (double) R_value;
+
+        std::cout << "Enter in the n value: ";
+        std::cin >> n;
+        graphLines.clear();
+        generateGraph(0, n, (R - r)/r);
+        update();
+    } else if (event->key() == Qt::Key_Q)
+       {
+        activeCamera->trackballRight(0.1);
+       } else if (event->key() == Qt::Key_W)
+    {
+        activeCamera->trackballUp(0.1);
+    }
+}
+
 // override mouse press event
 void Renderer::mousePressEvent(QMouseEvent * event)
 {
     if (event->button() == Qt::RightButton)
     {
         rightMousePressed =true;
+
+
+
     } else if (event->button()== Qt::LeftButton)
     {
         leftMousePressed = true;
@@ -336,4 +380,7 @@ void Renderer::mouseReleaseEvent(QMouseEvent *event)
     {
         leftMousePressed = false;
     }
+
+    //int vp[4];
+    //mousePos = vec2(event->x()/(double)vp[2], event->y()/(double) vp[3]) * 2.f - vec2(1.f);
 }

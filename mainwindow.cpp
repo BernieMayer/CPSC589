@@ -5,10 +5,16 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    ui->setupUi(this);
+
+
+    QVBoxLayout * layout = new QVBoxLayout();
+
+
 
     renderer = new Renderer();
-    ui->openGLWidget = renderer;
+    layout->addWidget(renderer);
+
+    ui->setupUi(this);
 
 
 }
@@ -27,5 +33,6 @@ void MainWindow::on_pushButton_clicked()
    renderer->setBig_R_value(9.0);
    renderer->redrawGraph();
    renderer->update();
+   renderer->t = 0;
 
 }
